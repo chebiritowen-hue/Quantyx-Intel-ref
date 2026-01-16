@@ -38,8 +38,8 @@ const REFERRAL_LEVELS = {
   3: 2.00
 };
  const SOCIAL_BONUS = {
-  whatsapp: 3,
-  telegram: 2
+  whatsapp: 0.5,
+  telegram: 0.5
 };
 function generateReferralCode(email) {
   const hash = crypto.createHash('md5').update(email.toLowerCase().trim()).digest('hex');
@@ -493,7 +493,11 @@ app.get('/api/health', (req, res) => {
     const { email, bonusType } = req.body;
 
     if (!email || !bonusType) {
-      return res.status(400).json({ success: false });
+      return res.status(400).json({
+  success: false,
+  claimed: false,
+  message: 'Invalid request'
+});
     }
 
     const result = await pool.query(
@@ -516,12 +520,18 @@ app.get('/api/health', (req, res) => {
     const { email, bonusType } = req.body;
 
     if (!email || !SOCIAL_BONUS[bonusType]) {
-      return res.status(400).json({ success: false });
+      return res.status(400).json({
+  success: false,
+  message: 'Invalid bonus type'
+});
     }
 
     const user = await findUserByEmail(email);
     if (!user) {
-      return res.status(404).json({ success: false });
+      return res.status(404).json({
+  success: false,
+  message: 'User not found'
+});
     }
 
     const insert = await pool.query(
