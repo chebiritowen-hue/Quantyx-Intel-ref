@@ -15,7 +15,7 @@ const pool = new Pool({
 });
 
 const corsOptions = {
-  origin: ['https://quantyxintel.top, 'https://www.luxearn.site', 'http://luxearn.site', 'http://www.luxearn.site', 'https://luxearnref.onrender.com', 'http://localhost:5500', 'http://127.0.0.1:5500'],
+  origin: ['https://quantyxintel.top, 'https://www.quantyxintel.top, 'http://quantyxintel.top, 'http://www.quantyxintel.top, 'https://quantyxref.onrender.com', 'http://localhost:5500', 'http://127.0.0.1:5500'],
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -140,7 +140,7 @@ app.get('/api/referral', async (req, res) => {
       user = await createUser(email);
     }
 
-    const referralLink = `https://luxearn.site/login?ref=${user.referral_code}`;
+    const referralLink = `https://quantyxintel.top/register?ref=${user.referral_code}`;
     
     res.json({
       success: true,
@@ -173,7 +173,7 @@ app.post('/api/register', async (req, res) => {
           id: user.id,
           email: user.email,
           referralCode: user.referral_code,
-          referralLink: `https://luxearn.site/login?ref=${user.referral_code}`,
+          referralLink: `https://quantyxintel.top/register?ref=${user.referral_code}`,
           isNew: false
         }
       });
@@ -195,7 +195,7 @@ app.post('/api/register', async (req, res) => {
         id: user.id,
         email: user.email,
         referralCode: user.referral_code,
-        referralLink: `https://luxearn.site/login?ref=${user.referral_code}`,
+        referralLink: `https://quantyx.register/register?ref=${user.referral_code}`,
         isNew: true
       }
     });
