@@ -15,7 +15,15 @@ const pool = new Pool({
 });
 
 const corsOptions = {
-  origin: ['https://quantyxintel.top, 'https://www.quantyxintel.top, 'http://quantyxintel.top, 'http://www.quantyxintel.top, 'https://quantyxref.onrender.com', 'http://localhost:5500', 'http://127.0.0.1:5500'],
+  origin: [
+    'https://quantyxintel.top',
+    'https://www.luxearn.site',
+    'http://luxearn.site',
+    'http://www.luxearn.site',
+    'https://luxearnref.onrender.com',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500'
+  ],
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
