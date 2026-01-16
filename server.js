@@ -37,7 +37,10 @@ const REFERRAL_LEVELS = {
   2: 3.00,
   3: 2.00
 };
-
+ const SOCIAL_BONUS = {
+  whatsapp: 3,
+  telegram: 2
+};
 function generateReferralCode(email) {
   const hash = crypto.createHash('md5').update(email.toLowerCase().trim()).digest('hex');
   const numericHash = parseInt(hash.substring(0, 8), 16);
@@ -485,7 +488,74 @@ app.get('/api/earnings-history', async (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+ app.post('/api/social-bonus/check', async (req, res) => {
+  try {
+    const { email, bonusType } = req.body;
 
+    if (!email || !bonusType) {
+      return res.status(400).json({ success: false });
+    }
+
+    const result = await pool.query(
+      'SELECT claimed FROM social_bonus_claims WHERE email = $1 AND bonus_type = $2',
+      [email.toLowerCase().trim(), bonusType]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ success: true, claimed: false });
+    }
+
+    res.json({ success: true, claimed: result.rows[0].claimed });
+  } catch (err) {
+    console.error('social bonus check error', err);
+    res.status(500).json({ success: false });
+  }
+});
+ app.post('/api/social-bonus/claim', async (req, res) => {
+  try {
+    const { email, bonusType } = req.body;
+
+    if (!email || !SOCIAL_BONUS[bonusType]) {
+      return res.status(400).json({ success: false });
+    }
+
+    const user = await findUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ success: false });
+    }
+
+    const insert = await pool.query(
+  `INSERT INTO social_bonus_claims 
+   (email, bonus_type, unique_key, claimed, claimed_at, created_at)
+   VALUES ($1, $2, $1 || ':' || $2, true, NOW(), NOW())
+   ON CONFLICT (unique_key) DO NOTHING
+   RETURNING id`,
+  [email.toLowerCase().trim(), bonusType]
+);
+
+    if (insert.rowCount === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Bonus already claimed'
+      });
+    }
+
+    const amount = SOCIAL_BONUS[bonusType];
+
+    await pool.query(
+      'UPDATE users SET balance = balance + $1 WHERE email = $2',
+      [amount, email.toLowerCase().trim()]
+    );
+
+    res.json({
+      success: true,
+      amount
+    });
+  } catch (err) {
+    console.error('social bonus claim error', err);
+    res.status(500).json({ success: false });
+  }
+});
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
